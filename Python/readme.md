@@ -13,7 +13,7 @@ kalman-project:
 
 ├── kalman.py # Python file Kalman logic
 
-├── rocket_dummy_flight.csv # Header file
+├── rocket_dummy_flight.csv 
 
 ├── readme.md
 
@@ -28,7 +28,7 @@ Where:
 - `Bₖ` → Control input matrix (how input affects state)
 - `uₖ` → Control vector (acceleration, input forces, etc.)
 - `wₖ` → Process noise (assumed Gaussian with covariance `Q`)
-- 
+
 🔹 Measurement Update
 zₖ = Hₖ·xₖ + vₖ
 
