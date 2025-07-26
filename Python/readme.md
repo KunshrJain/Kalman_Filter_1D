@@ -83,5 +83,5 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 ### Contributors:
 | Name                                         | GitHub Profile            |
 | ---------------------------------------------| ------------------------- |
-| [Kunsh Jain](https://github.com/kunshrjain)  | Contributor and Developer |
 | [Pranjal Giri](https://github.com/oslowtech) | Contributor and Developer |
+| [Kunsh Jain](https://github.com/kunshrjain)  | Contributor and Developer |
