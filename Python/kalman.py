@@ -1,74 +1,71 @@
-import serial
 import numpy as np
 import matplotlib.pyplot as plt
-from time import time, sleep
 
-# === Kalman Filter Initialization ===
+# Time step (seconds)
 dt = 0.1
-A = np.array([[1, dt], [0, 1]])
-B = np.array([[0.5 * dt ** 2], [dt]])
-H = np.array([[1, 0]])
-Q = np.array([[0.01, 0], [0, 0.1]])
-R = np.array([[9]])
-x = np.array([[0], [0]])  # [altitude, velocity]
-P = np.eye(2)
 
-# === Serial Port Setup (change COM port as needed) ===
-ser = serial.Serial('COM3', 115200, timeout=1)
+# Define system model
+A = np.array([[1, dt],
+              [0, 1]])      # State transition matrix
+B = np.array([[0.5 * dt**2],
+              [dt]])        # Control input matrix (for acceleration)
+H = np.array([[1, 0]])      # Measurement matrix (barometer only sees altitude)
 
-# === Data Lists for Plotting ===
-t_vals, alt_true, alt_kf = [], [], []
-start_time = time()
+# Covariances
+Q = np.array([[1e-3, 0],
+              [0, 1.51e-3]])   # Process noise (trust in model)
+R = np.array([[3]])         # Measurement noise (barometer noise ~3m)
 
-try:
-    i=0
-    while True:
-        line = []
-        i+=1
-        if line.startswith("ALT:"):
-            try:
-                
-                # Parse values
-                parts = line.replace("ALT:", "").replace("ACC:", "").split()
-                alt = float(parts[0])
-                acc = float(parts[1])  # should already have gravity removed on ESP32
+# Initial state
+x = np.array([[0],          # altitude (m)
+              [0]])         # velocity (m/s)
+P = np.eye(2)               # Initial estimate uncertainty
 
-                # Kalman Prediction
-                u = np.array([[acc]])
-                x = A @ x + B @ u
-                P = A @ P @ A.T + Q
+# Simulated true values and measurements
+true_alt = 0
+true_vel = 0
+acc_input = 1.5             # m/s² constant acceleration (e.g., during motor burn)
 
-                # Kalman Update
-                y = np.array([[alt]]) - H @ x
-                S = H @ P @ H.T + R
-                K = P @ H.T @ np.linalg.inv(S)
-                x = x + K @ y
-                P = (np.eye(2) - K @ H) @ P
+# Data storage for plotting
+estimates = []
+measurements = []
+truths = []
 
-                # Store data
-                t_vals.append(time() - start_time)
-                alt_true.append(alt)
-                alt_kf.append(x[0, 0])
+# Simulation loop
+for t in range(100):
+    # Simulate true motion
+    true_alt += true_vel * dt + 0.5 * acc_input * dt**2
+    true_vel += acc_input * dt
 
-                # Print estimate
-                print(f"KF Altitude: {x[0,0]:.2f} m | Velocity: {x[1,0]:.2f} m/s")
+    # Simulate noisy sensor readings
+    z = true_alt + np.random.normal(0, 50)    # barometer
+    acc_measured = acc_input + np.random.normal(0, 0.2)  # IMU noise
 
-                sleep(dt)
+    # === Kalman Prediction ===
+    u = np.array([[acc_measured]])            # control input
+    x = A @ x + B @ u                         # predicted state
+    P = A @ P @ A.T + Q                       # predicted covariance
 
-            except Exception as e:
-                print("Parse error:", e)
+    # === Kalman Update ===
+    y = z - (H @ x)                           # innovation
+    S = H @ P @ H.T + R                       # innovation covariance
+    K = P @ H.T @ np.linalg.inv(S)            # Kalman Gain
+    x = x + K @ y                             # update estimate
+    P = (np.eye(2) - K @ H) @ P               # update covariance
 
-except KeyboardInterrupt:
-    ser.close()
-    print("Serial closed.")
+    # Store for plotting
+    estimates.append(x[0, 0])
+    measurements.append(z)
+    truths.append(true_alt)
 
-    # Plot after exit
-    plt.figure(figsize=(10, 5))
-    plt.plot(t_vals, alt_true, label="Barometer Altitude (Noisy)", linestyle="dotted")
-    plt.plot(t_vals, alt_kf, label="Kalman Filter Altitude", linewidth=2)
-    plt.xlabel("Time (s)")
-    plt.ylabel("Altitude (m)")
-    plt.title("Real-Time Kalman Filter from ESP32")
-    plt.legend()
-    plt.grid()
-    plt.show()
+# === Plot results ===
+plt.figure(figsize=(10, 5))
+plt.plot(truths, label='True Altitude')
+plt.plot(measurements, label='Barometer (Noisy)', linestyle='dotted')
+plt.plot(estimates, label='Kalman Filter Estimate')
+plt.xlabel('Time step')
+plt.ylabel('Altitude (m)')
+plt.title('Kalman Filter for Rocket Altitude Estimation')
+plt.legend()
+plt.grid()
+plt.show()
