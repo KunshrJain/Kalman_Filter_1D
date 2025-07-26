@@ -18,16 +18,17 @@ This project demonstrates a simple but powerful **Kalman Filter** implementation
 
 ## 🔧 Folder Structure
 
-kalman-project/
+kalman-project:
+
 ├── kalman.c # Native C Kalman logic
 
 ├── kalman.h # Header file
 
 ├── build.bat / Makefile # Compile C into DLL/SO
 
-├── main.py # Python GUI (PyQt5)
+├── main.c # Calling for test
 
-├── test_input.txt # (Optional) Sample sensor data
+├── main.exe #Execution file for post prototyping
 
 ├── README.md 
 
