@@ -75,6 +75,11 @@ Pₖ = (I - Kₖ·H)·Pₖ⁻
 2. Install VSC:
    ```bash
    https://code.visualstudio.com/
+   ```
+3. Install Gcc/G++:
+   ```bash
+   https://code.visualstudio.com/docs/cpp/config-mingw
+   ```
 
 ---
 
