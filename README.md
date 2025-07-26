@@ -20,11 +20,17 @@ This project demonstrates a simple but powerful **Kalman Filter** implementation
 
 kalman-project/
 ├── kalman.c # Native C Kalman logic
+
 ├── kalman.h # Header file
+
 ├── build.bat / Makefile # Compile C into DLL/SO
+
 ├── main.py # Python GUI (PyQt5)
+
 ├── test_input.txt # (Optional) Sample sensor data
+
 ├── README.md 
+
 ├── License
 
 
